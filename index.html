@@ -218,17 +218,69 @@
   }
   .eq-slider-wrap input[type="range"] { height: 5px; }
 
-  .eq-presets { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .eq-presets { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
   .eq-preset-btn {
     font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 500;
     padding: 6px 14px; border-radius: 20px;
     border: 1px solid var(--border); background: transparent;
     color: var(--text-dim); cursor: pointer; transition: all 0.25s ease;
+    position: relative;
   }
   .eq-preset-btn:hover, .eq-preset-btn.active {
     border-color: var(--active-accent); color: var(--active-accent);
     background: var(--active-glow);
   }
+  /* Custom preset with delete */
+  .eq-preset-btn .preset-del {
+    display: none; position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--danger); color: #fff; border: none;
+    font-size: 0.6rem; line-height: 1; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .eq-preset-btn:hover .preset-del { display: flex; }
+
+  /* Save preset row */
+  .save-preset-row {
+    display: flex; gap: 6px; align-items: center; margin-left: 4px;
+  }
+  .save-preset-trigger {
+    font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 500;
+    padding: 6px 12px; border-radius: 20px;
+    border: 1px dashed var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.25s ease;
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+  }
+  .save-preset-trigger:hover { border-color: var(--active-accent); color: var(--active-accent); }
+  .save-preset-trigger svg { width: 12px; height: 12px; }
+
+  .save-preset-input {
+    font-family: 'Outfit', sans-serif; font-size: 0.74rem;
+    padding: 5px 12px; border-radius: 16px; width: 140px;
+    border: 1px solid var(--active-accent); background: var(--surface-2);
+    color: var(--text); outline: none;
+    transition: box-shadow 0.2s ease;
+  }
+  .save-preset-input:focus { box-shadow: 0 0 8px var(--active-glow); }
+  .save-preset-input::placeholder { color: var(--text-muted); }
+
+  .save-preset-confirm {
+    font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600;
+    padding: 5px 12px; border-radius: 16px;
+    border: none; background: var(--active-accent); color: var(--bg);
+    cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+  }
+  .save-preset-confirm:hover { opacity: 0.85; }
+  .save-preset-cancel {
+    font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 500;
+    padding: 5px 10px; border-radius: 16px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  }
+  .save-preset-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .save-input-group { display: none; align-items: center; gap: 6px; }
+  .save-input-group.visible { display: flex; }
   .eq-note {
     font-size: 0.74rem; color: var(--text-muted); line-height: 1.6;
     margin-top: 14px; padding: 10px 12px;
@@ -306,17 +358,26 @@
   }
   .pomo-cfg-unit { font-size: 0.62rem; color: var(--text-muted); margin-top: 4px; }
 
-  .pomo-presets { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .pomo-presets { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
   .pomo-preset-btn {
     font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 500;
     padding: 5px 12px; border-radius: 20px;
     border: 1px solid var(--border); background: transparent;
     color: var(--text-dim); cursor: pointer; transition: all 0.25s ease;
+    position: relative;
   }
   .pomo-preset-btn:hover, .pomo-preset-btn.active {
     border-color: var(--active-accent); color: var(--active-accent);
     background: var(--active-glow);
   }
+  .pomo-preset-btn .preset-del {
+    display: none; position: absolute; top: -6px; right: -6px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--danger); color: #fff; border: none;
+    font-size: 0.6rem; line-height: 1; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .pomo-preset-btn:hover .preset-del { display: flex; }
 
   .pomo-auto-row {
     display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
@@ -500,6 +561,18 @@
     <div class="section-body" id="eqBody">
       <div id="eqContainer"></div>
       <div class="eq-presets" id="eqPresets"></div>
+      <div id="eqSaveRow" class="save-preset-row">
+        <button class="save-preset-trigger" onclick="showSaveInput('eq')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Salva preset
+        </button>
+        <div class="save-input-group" id="eqSaveInput">
+          <input class="save-preset-input" id="eqPresetNameInput" placeholder="Nome preset…" maxlength="20"
+            onkeydown="if(event.key==='Enter')confirmSavePreset('eq')">
+          <button class="save-preset-confirm" onclick="confirmSavePreset('eq')">Salva</button>
+          <button class="save-preset-cancel" onclick="hideSaveInput('eq')">✕</button>
+        </div>
+      </div>
       <div class="eq-note">
         <strong>Low/High Shelf</strong> tagliano o enfatizzano tutto sopra/sotto la frequenza. I <strong>Peak</strong> agiscono su bande specifiche con range ±18dB. Il <strong>Low-Pass</strong> (sopra) è un filtro a -24dB/oct che taglia nettamente le alte — molto più efficace del vecchio EQ a campana.
       </div>
@@ -579,10 +652,22 @@
             <div class="pomo-cfg-unit">per serie</div>
           </div>
         </div>
-        <div class="pomo-presets">
-          <button class="pomo-preset-btn active" onclick="applyPomoPreset('classic',this)">Classico 25/5</button>
-          <button class="pomo-preset-btn" onclick="applyPomoPreset('long',this)">Deep Work 50/10</button>
-          <button class="pomo-preset-btn" onclick="applyPomoPreset('short',this)">Sprint 15/3</button>
+        <div class="pomo-presets" id="pomoPresetsContainer">
+          <button class="pomo-preset-btn active" data-preset="classic" onclick="applyPomoPreset('classic',this)">Classico 25/5</button>
+          <button class="pomo-preset-btn" data-preset="long" onclick="applyPomoPreset('long',this)">Deep Work 50/10</button>
+          <button class="pomo-preset-btn" data-preset="short" onclick="applyPomoPreset('short',this)">Sprint 15/3</button>
+        </div>
+        <div id="pomoSaveRow" class="save-preset-row" style="margin-bottom:10px">
+          <button class="save-preset-trigger" onclick="showSaveInput('pomo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Salva config
+          </button>
+          <div class="save-input-group" id="pomoSaveInput">
+            <input class="save-preset-input" id="pomoPresetNameInput" placeholder="Nome config…" maxlength="20"
+              onkeydown="if(event.key==='Enter')confirmSavePreset('pomo')">
+            <button class="save-preset-confirm" onclick="confirmSavePreset('pomo')">Salva</button>
+            <button class="save-preset-cancel" onclick="hideSaveInput('pomo')">✕</button>
+          </div>
         </div>
         <div class="pomo-auto-row">
           <label class="pomo-toggle-label">
@@ -639,7 +724,7 @@
   </div>
 
   <footer class="footer">
-    Stereo decorrelato · Paul Kellet (pink) · Integrazione browniana (brown) · Low-pass -24dB/oct · Web Audio API
+    Stereo decorrelato · Paul Kellet (pink) · Integrazione browniana (brown) · LP -24dB/oct · AudioWorklet (thread dedicato)
   </footer>
 </div>
 
@@ -649,16 +734,13 @@
 // ============================================================
 let audioCtx = null;
 let noiseProc = null;
-let widthProc = null;
 let gainNode = null;
 let analyserNode = null;
-let lpFilters = []; // cascaded low-pass for steep rolloff
+let lpFilters = [];
 let eqFilterNodes = [];
 let isPlaying = false;
 let currentType = 'white';
 let stereoWidth = 1.0;
-
-const BUFFER_SIZE = 4096;
 
 // ============================================================
 // PARAMETRIC EQ CONFIG: 7 bands
@@ -686,90 +768,122 @@ let eqGains = new Array(7).fill(0);
 let currentPreset = 'Flat';
 
 // ============================================================
-// STEREO DECORRELATED NOISE GENERATOR
-// Independent L/R noise streams for immersive spatial feel
+// STEREO DECORRELATED NOISE — AudioWorklet (dedicated audio thread)
+//
+// AudioWorklet runs on a separate high-priority thread, eliminating
+// the glitches/dropouts caused by ScriptProcessorNode which runs
+// on the main thread and competes with UI rendering, GC, timers, etc.
+//
+// The processor code is inlined via Blob URL for single-file deployment.
 // ============================================================
-function createNoiseGenerator(type) {
-  // Output: 2 channels (stereo), Input: 0 channels (generator)
-  const proc = audioCtx.createScriptProcessor(BUFFER_SIZE, 0, 2);
 
-  // Pink noise: Paul Kellet's refined method — independent state per channel
-  const bL = new Float64Array(7);
-  const bR = new Float64Array(7);
-  // Brown noise: independent brownian integration per channel
-  let brownL = 0, brownR = 0;
+const WORKLET_CODE = `
+class NoiseProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.type = 'white';
+    this.width = 1.0;
+    this.alive = true;
+    // Pink noise state (Paul Kellet) — independent per channel
+    this.bL = new Float64Array(7);
+    this.bR = new Float64Array(7);
+    // Brown noise state
+    this.brownL = 0;
+    this.brownR = 0;
+    // PRNG state (xorshift128 — faster and more uniform than Math.random)
+    this.s = new Uint32Array(4);
+    this.s[0] = (Math.random() * 0xFFFFFFFF) >>> 0;
+    this.s[1] = (Math.random() * 0xFFFFFFFF) >>> 0;
+    this.s[2] = (Math.random() * 0xFFFFFFFF) >>> 0;
+    this.s[3] = (Math.random() * 0xFFFFFFFF) >>> 0;
 
-  proc.onaudioprocess = function(e) {
-    const outL = e.outputBuffer.getChannelData(0);
-    const outR = e.outputBuffer.getChannelData(1);
+    this.port.onmessage = (e) => {
+      if (e.data.type !== undefined) this.type = e.data.type;
+      if (e.data.width !== undefined) this.width = e.data.width;
+      if (e.data.stop) this.alive = false;
+    };
+  }
 
-    for (let i = 0; i < BUFFER_SIZE; i++) {
-      const wL = Math.random() * 2 - 1;
-      const wR = Math.random() * 2 - 1;
+  // xorshift128 PRNG → [-1, 1]
+  rand() {
+    let s = this.s;
+    let t = s[3];
+    t ^= t << 11; t ^= t >>> 8;
+    s[3] = s[2]; s[2] = s[1]; s[1] = s[0];
+    s[0] ^= s[0] >>> 19; s[0] ^= t;
+    return ((s[0] >>> 0) / 0xFFFFFFFF) * 2 - 1;
+  }
+
+  process(inputs, outputs) {
+    if (!this.alive) return false;
+    const outL = outputs[0][0];
+    const outR = outputs[0][1];
+    if (!outL || !outR) return true;
+    const len = outL.length;
+    const type = this.type;
+    const w = this.width;
+
+    for (let i = 0; i < len; i++) {
+      const wL = this.rand();
+      const wR = this.rand();
+      let sL, sR;
 
       if (type === 'white') {
-        outL[i] = wL * 0.5;
-        outR[i] = wR * 0.5;
+        sL = wL * 0.5;
+        sR = wR * 0.5;
       }
       else if (type === 'pink') {
-        // Paul Kellet's refined pink noise (-3dB/octave)
-        // Left channel
+        const bL = this.bL, bR = this.bR;
         bL[0] = 0.99886 * bL[0] + wL * 0.0555179;
         bL[1] = 0.99332 * bL[1] + wL * 0.0750759;
         bL[2] = 0.96900 * bL[2] + wL * 0.1538520;
         bL[3] = 0.86650 * bL[3] + wL * 0.3104856;
         bL[4] = 0.55000 * bL[4] + wL * 0.5329522;
         bL[5] = -0.7616 * bL[5] - wL * 0.0168980;
-        outL[i] = (bL[0] + bL[1] + bL[2] + bL[3] + bL[4] + bL[5] + bL[6] + wL * 0.5362) * 0.11;
+        sL = (bL[0]+bL[1]+bL[2]+bL[3]+bL[4]+bL[5]+bL[6]+wL*0.5362) * 0.11;
         bL[6] = wL * 0.115926;
-        // Right channel (independent)
+
         bR[0] = 0.99886 * bR[0] + wR * 0.0555179;
         bR[1] = 0.99332 * bR[1] + wR * 0.0750759;
         bR[2] = 0.96900 * bR[2] + wR * 0.1538520;
         bR[3] = 0.86650 * bR[3] + wR * 0.3104856;
         bR[4] = 0.55000 * bR[4] + wR * 0.5329522;
         bR[5] = -0.7616 * bR[5] - wR * 0.0168980;
-        outR[i] = (bR[0] + bR[1] + bR[2] + bR[3] + bR[4] + bR[5] + bR[6] + wR * 0.5362) * 0.11;
+        sR = (bR[0]+bR[1]+bR[2]+bR[3]+bR[4]+bR[5]+bR[6]+wR*0.5362) * 0.11;
         bR[6] = wR * 0.115926;
       }
-      else if (type === 'brown') {
-        // Brownian (red) noise: -6dB/octave via integration
-        // Independent integration per channel for wide stereo image
-        brownL = (brownL + (0.02 * wL)) / 1.02;
-        brownR = (brownR + (0.02 * wR)) / 1.02;
-        outL[i] = brownL * 3.5;
-        outR[i] = brownR * 3.5;
+      else { // brown
+        this.brownL = (this.brownL + 0.02 * wL) / 1.02;
+        this.brownR = (this.brownR + 0.02 * wR) / 1.02;
+        sL = this.brownL * 3.5;
+        sR = this.brownR * 3.5;
       }
-    }
-  };
-  return proc;
-}
 
-// ============================================================
-// STEREO WIDTH PROCESSOR (mid/side encoding)
-// 0% = mono, 100% = full stereo decorrelation
-// ============================================================
-function createWidthProcessor() {
-  const proc = audioCtx.createScriptProcessor(BUFFER_SIZE, 2, 2);
-  proc.onaudioprocess = function(e) {
-    const inL = e.inputBuffer.getChannelData(0);
-    const inR = e.inputBuffer.getChannelData(1);
-    const outL = e.outputBuffer.getChannelData(0);
-    const outR = e.outputBuffer.getChannelData(1);
-    const w = stereoWidth;
-    for (let i = 0; i < BUFFER_SIZE; i++) {
-      const mid  = (inL[i] + inR[i]) * 0.5;
-      const side = (inL[i] - inR[i]) * 0.5;
+      // Stereo width via mid/side
+      const mid  = (sL + sR) * 0.5;
+      const side = (sL - sR) * 0.5;
       outL[i] = mid + side * w;
       outR[i] = mid - side * w;
     }
-  };
-  return proc;
+    return true;
+  }
+}
+registerProcessor('noise-processor', NoiseProcessor);
+`;
+
+let workletRegistered = false;
+let workletBlobUrl = null;
+
+async function ensureWorkletRegistered() {
+  if (workletRegistered) return;
+  workletBlobUrl = URL.createObjectURL(new Blob([WORKLET_CODE], { type: 'application/javascript' }));
+  await audioCtx.audioWorklet.addModule(workletBlobUrl);
+  workletRegistered = true;
 }
 
 // ============================================================
 // AUDIO GRAPH
-// noise(stereo) -> width -> EQ(7 bands) -> LP x2(-24dB/oct) -> gain -> analyser -> out
+// worklet(stereo) -> EQ(7 bands) -> LP x2(-24dB/oct) -> gain -> analyser -> out
 // ============================================================
 function initAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -777,26 +891,33 @@ function initAudio() {
 }
 
 function disconnectAll() {
-  [noiseProc, widthProc, gainNode, analyserNode].forEach(n => {
-    if (n) try { n.disconnect(); } catch(e) {}
-  });
+  if (noiseProc) {
+    try { noiseProc.port.postMessage({ stop: true }); } catch(e) {}
+    try { noiseProc.disconnect(); } catch(e) {}
+  }
   eqFilterNodes.forEach(f => { try { f.disconnect(); } catch(e) {} });
   lpFilters.forEach(f => { try { f.disconnect(); } catch(e) {} });
-  noiseProc = widthProc = gainNode = analyserNode = null;
+  if (gainNode) { try { gainNode.disconnect(); } catch(e) {} }
+  if (analyserNode) { try { analyserNode.disconnect(); } catch(e) {} }
+  noiseProc = gainNode = analyserNode = null;
   eqFilterNodes = []; lpFilters = [];
 }
 
-function startNoise() {
+async function startNoise() {
   initAudio();
   disconnectAll();
 
-  // 1. Noise generator (stereo decorrelated)
-  noiseProc = createNoiseGenerator(currentType);
+  await ensureWorkletRegistered();
 
-  // 2. Stereo width
-  widthProc = createWidthProcessor();
+  // 1. Noise worklet (stereo, dedicated thread)
+  noiseProc = new AudioWorkletNode(audioCtx, 'noise-processor', {
+    numberOfInputs: 0,
+    numberOfOutputs: 1,
+    outputChannelCount: [2],
+  });
+  noiseProc.port.postMessage({ type: currentType, width: stereoWidth });
 
-  // 3. Parametric EQ (7 bands)
+  // 2. Parametric EQ (7 bands)
   eqFilterNodes = EQ_BANDS.map((band, i) => {
     const f = audioCtx.createBiquadFilter();
     f.type = band.type;
@@ -806,36 +927,31 @@ function startNoise() {
     return f;
   });
 
-  // 4. Cascaded low-pass (-24dB/oct = 2x -12dB/oct Butterworth)
+  // 3. Cascaded low-pass (-24dB/oct = 2x Butterworth)
   const lpFreq = parseFloat(document.getElementById('lpSlider').value);
   lpFilters = [0, 1].map(() => {
     const f = audioCtx.createBiquadFilter();
     f.type = 'lowpass';
     f.frequency.value = lpFreq;
-    f.Q.value = 0.707; // Butterworth
+    f.Q.value = 0.707;
     return f;
   });
 
-  // 5. Gain with fade-in
+  // 4. Gain with fade-in
   gainNode = audioCtx.createGain();
   const vol = parseInt(document.getElementById('volumeSlider').value) / 100;
   gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
   gainNode.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.6);
 
-  // 6. Analyser
+  // 5. Analyser
   analyserNode = audioCtx.createAnalyser();
   analyserNode.fftSize = 256;
   analyserNode.smoothingTimeConstant = 0.82;
 
-  // Chain everything
+  // Chain: worklet -> EQ -> LP1 -> LP2 -> gain -> analyser -> dest
   let node = noiseProc;
-  // noise -> width
-  node.connect(widthProc); node = widthProc;
-  // -> EQ bands
   eqFilterNodes.forEach(f => { node.connect(f); node = f; });
-  // -> LP cascade
   lpFilters.forEach(f => { node.connect(f); node = f; });
-  // -> gain -> analyser -> output
   node.connect(gainNode);
   gainNode.connect(analyserNode);
   analyserNode.connect(audioCtx.destination);
@@ -856,7 +972,10 @@ function stopNoise() {
   updatePlayButton();
 }
 
-function togglePlay() { isPlaying ? stopNoise() : startNoise(); }
+function togglePlay() {
+  if (isPlaying) { stopNoise(); }
+  else { startNoise().catch(e => console.error('Audio start failed:', e)); }
+}
 
 function updatePlayButton() {
   const btn = document.getElementById('playBtn');
@@ -874,7 +993,8 @@ function selectNoise(type) {
   const a = { white: ['#a8c7fa','#a8c7fa30'], pink: ['#f2a0c4','#f2a0c430'], brown: ['#d4a574','#d4a57430'] };
   document.documentElement.style.setProperty('--active-accent', a[type][0]);
   document.documentElement.style.setProperty('--active-glow', a[type][1]);
-  if (isPlaying) startNoise();
+  // Message worklet directly — no restart needed, glitch-free switch
+  if (noiseProc) noiseProc.port.postMessage({ type: type });
 }
 
 // ============================================================
@@ -900,7 +1020,8 @@ function updateLowPass(val) {
 function updateWidth(val) {
   stereoWidth = val / 100;
   document.getElementById('widthVal').textContent = val + '%';
-  // Width is applied in real-time inside the widthProc — no rebuild needed
+  // Message worklet directly — real-time, glitch-free
+  if (noiseProc) noiseProc.port.postMessage({ width: stereoWidth });
 }
 
 // ============================================================
@@ -937,13 +1058,7 @@ function buildEqUI() {
 
   const presetsDiv = document.getElementById('eqPresets');
   presetsDiv.innerHTML = '';
-  Object.keys(EQ_PRESETS).forEach(name => {
-    const btn = document.createElement('button');
-    btn.className = 'eq-preset-btn' + (name === currentPreset ? ' active' : '');
-    btn.textContent = name;
-    btn.onclick = () => applyEqPreset(name);
-    presetsDiv.appendChild(btn);
-  });
+  renderEqPresets();
 }
 
 function fmtGain(v) { v = parseFloat(v); return (v > 0 ? '+' : '') + v; }
@@ -973,7 +1088,11 @@ function applyEqPreset(name) {
   document.getElementById('lpSlider').value = preset.lp;
   updateLowPass(preset.lp);
 
-  document.querySelectorAll('.eq-preset-btn').forEach(b => b.classList.toggle('active', b.textContent === name));
+  // Activate button by matching name
+  document.querySelectorAll('.eq-preset-btn').forEach(b => {
+    const btnName = b.textContent.replace('✕','').trim();
+    b.classList.toggle('active', btnName === name);
+  });
 }
 
 // ============================================================
@@ -1096,6 +1215,7 @@ const POMO_PRESETS = {
 function applyPomoPreset(name, btn) {
   if (timerRunning) return;
   const p = POMO_PRESETS[name];
+  if (!p) return;
   Object.assign(pomo, p);
   document.getElementById('pomoCfgWork').textContent = p.work;
   document.getElementById('pomoCfgShort').textContent = p.short;
@@ -1523,18 +1643,203 @@ function sendNotification(title, body) {
 }
 
 // ============================================================
+// PERSISTENT STORAGE — Custom Presets
+// Uses window.storage API for persistence across sessions
+// Keys: 'noisecraft:eq-custom' and 'noisecraft:pomo-custom'
+// ============================================================
+let customEqPresets = {};   // { name: { gains: [...], lp: number } }
+let customPomoPresets = {}; // { name: { work, short, long, rounds } }
+
+async function loadCustomPresets() {
+  try {
+    const eqResult = await window.storage.get('noisecraft:eq-custom');
+    if (eqResult && eqResult.value) {
+      customEqPresets = JSON.parse(eqResult.value);
+    }
+  } catch(e) { customEqPresets = {}; }
+
+  try {
+    const pomoResult = await window.storage.get('noisecraft:pomo-custom');
+    if (pomoResult && pomoResult.value) {
+      customPomoPresets = JSON.parse(pomoResult.value);
+    }
+  } catch(e) { customPomoPresets = {}; }
+}
+
+async function saveCustomEqPresets() {
+  try {
+    await window.storage.set('noisecraft:eq-custom', JSON.stringify(customEqPresets));
+  } catch(e) { console.warn('Storage save failed:', e); }
+}
+
+async function saveCustomPomoPresets() {
+  try {
+    await window.storage.set('noisecraft:pomo-custom', JSON.stringify(customPomoPresets));
+  } catch(e) { console.warn('Storage save failed:', e); }
+}
+
+// --- Save input UI ---
+function showSaveInput(type) {
+  const group = document.getElementById(type + 'SaveInput');
+  const trigger = group.previousElementSibling || group.parentElement.querySelector('.save-preset-trigger');
+  group.classList.add('visible');
+  const input = document.getElementById(type + 'PresetNameInput');
+  input.value = '';
+  input.focus();
+}
+
+function hideSaveInput(type) {
+  document.getElementById(type + 'SaveInput').classList.remove('visible');
+}
+
+async function confirmSavePreset(type) {
+  const input = document.getElementById(type + 'PresetNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+
+  // Prevent overwriting built-in presets
+  if (type === 'eq') {
+    if (EQ_PRESETS[name]) { alert('Non puoi sovrascrivere un preset predefinito.'); return; }
+    customEqPresets[name] = {
+      gains: [...eqGains],
+      lp: parseFloat(document.getElementById('lpSlider').value),
+    };
+    await saveCustomEqPresets();
+    renderEqPresets();
+  }
+  else if (type === 'pomo') {
+    if (POMO_PRESETS[name]) { alert('Non puoi sovrascrivere un preset predefinito.'); return; }
+    customPomoPresets[name] = {
+      work: pomo.work, short: pomo.short, long: pomo.long, rounds: pomo.rounds,
+    };
+    await saveCustomPomoPresets();
+    renderPomoPresets();
+  }
+
+  hideSaveInput(type);
+}
+
+async function deleteCustomPreset(type, name, event) {
+  event.stopPropagation();
+  if (type === 'eq') {
+    delete customEqPresets[name];
+    await saveCustomEqPresets();
+    renderEqPresets();
+  } else if (type === 'pomo') {
+    delete customPomoPresets[name];
+    await saveCustomPomoPresets();
+    renderPomoPresets();
+  }
+}
+
+// --- EQ preset rendering ---
+function renderEqPresets() {
+  const presetsDiv = document.getElementById('eqPresets');
+  presetsDiv.innerHTML = '';
+
+  // Built-in presets
+  Object.keys(EQ_PRESETS).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'eq-preset-btn' + (name === currentPreset ? ' active' : '');
+    btn.textContent = name;
+    btn.onclick = () => applyEqPreset(name);
+    presetsDiv.appendChild(btn);
+  });
+
+  // Custom presets with delete button
+  Object.keys(customEqPresets).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'eq-preset-btn' + (name === currentPreset ? ' active' : '');
+    btn.innerHTML = `${name}<button class="preset-del" onclick="deleteCustomPreset('eq','${name.replace(/'/g,"\\'")}',event)">✕</button>`;
+    btn.onclick = () => applyCustomEqPreset(name);
+    presetsDiv.appendChild(btn);
+  });
+}
+
+function applyCustomEqPreset(name) {
+  const preset = customEqPresets[name];
+  if (!preset) return;
+  // Reuse built-in apply logic
+  currentPreset = name;
+  eqGains = [...preset.gains];
+
+  document.querySelectorAll('.eq-row input[type="range"]').forEach((s, i) => {
+    s.value = eqGains[i];
+    document.getElementById(`eqVal${i}`).textContent = fmtGain(eqGains[i]);
+    if (eqFilterNodes[i] && audioCtx) eqFilterNodes[i].gain.linearRampToValueAtTime(eqGains[i], audioCtx.currentTime + 0.08);
+  });
+
+  document.getElementById('lpSlider').value = preset.lp;
+  updateLowPass(preset.lp);
+
+  document.querySelectorAll('.eq-preset-btn').forEach(b => b.classList.remove('active'));
+  // Find and activate matching button
+  document.querySelectorAll('.eq-preset-btn').forEach(b => {
+    if (b.textContent.replace('✕','') === name || b.textContent === name) b.classList.add('active');
+  });
+}
+
+// --- Pomo preset rendering ---
+function renderPomoPresets() {
+  const container = document.getElementById('pomoPresetsContainer');
+  container.innerHTML = '';
+
+  // Built-in presets
+  const builtInLabels = { classic: 'Classico 25/5', long: 'Deep Work 50/10', short: 'Sprint 15/3' };
+  Object.keys(POMO_PRESETS).forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'pomo-preset-btn';
+    btn.dataset.preset = key;
+    btn.textContent = builtInLabels[key] || key;
+    btn.onclick = () => { applyPomoPreset(key, btn); };
+    container.appendChild(btn);
+  });
+
+  // Custom presets with delete
+  Object.keys(customPomoPresets).forEach(name => {
+    const p = customPomoPresets[name];
+    const btn = document.createElement('button');
+    btn.className = 'pomo-preset-btn';
+    btn.dataset.preset = 'custom:' + name;
+    btn.innerHTML = `${name} <span style="opacity:0.5;font-size:0.62rem">${p.work}/${p.short}</span><button class="preset-del" onclick="deleteCustomPreset('pomo','${name.replace(/'/g,"\\'")}',event)">✕</button>`;
+    btn.onclick = () => applyCustomPomoPreset(name, btn);
+    container.appendChild(btn);
+  });
+}
+
+function applyCustomPomoPreset(name, btn) {
+  if (timerRunning) return;
+  const p = customPomoPresets[name];
+  if (!p) return;
+  Object.assign(pomo, p);
+  document.getElementById('pomoCfgWork').textContent = p.work;
+  document.getElementById('pomoCfgShort').textContent = p.short;
+  document.getElementById('pomoCfgLong').textContent = p.long;
+  document.getElementById('pomoCfgRounds').textContent = p.rounds;
+  document.querySelectorAll('.pomo-preset-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  resetPomodoro();
+}
+
+// ============================================================
 // INIT
 // ============================================================
-buildEqUI();
-updateVolume(40);
-updateLowPass(20000);
+(async function init() {
+  // Load saved custom presets from persistent storage
+  await loadCustomPresets();
 
-window.addEventListener('resize', () => { if (isPlaying) drawVisualizer(); });
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !['INPUT','BUTTON','TEXTAREA'].includes(e.target.tagName)) {
-    e.preventDefault(); togglePlay();
-  }
-});
+  buildEqUI();
+  renderPomoPresets();
+  updateVolume(40);
+  updateLowPass(20000);
+
+  window.addEventListener('resize', () => { if (isPlaying) drawVisualizer(); });
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !['INPUT','BUTTON','TEXTAREA'].includes(e.target.tagName)) {
+      e.preventDefault(); togglePlay();
+    }
+  });
+})();
 </script>
 </body>
 </html>
